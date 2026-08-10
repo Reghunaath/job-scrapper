@@ -1,0 +1,26 @@
+# Blacklisted companies — one per line.
+#
+# Jobs from these companies are dropped straight after the search: their
+# descriptions are never fetched and they are never sent to Claude. They do not
+# appear in the results at all.
+#
+# Matching ignores case, punctuation and legal suffixes, and matches whole
+# words. So a single line reading
+#
+#     Cummins
+#
+# blocks "Cummins", "Cummins Inc." and "CUMMINS, INC" — but not "Cumminsville".
+# Anything after a # is a comment. Blank lines are ignored.
+#
+# Prefer the shortest distinctive form of the name. Because matching is on whole
+# words, "Melson Tech" will NOT block "Melson Technologies", and "L3Harris
+# Technologies" will NOT block a posting listed as just "L3Harris" — whereas
+# "Melson" and "L3Harris" block every variant of each. The tradeoff is
+# deliberate: whole-word matching is what keeps "Apple" from also blocking
+# "Applebee's".
+#
+# This file is re-read on every scrape, so you do not need to restart the
+# server — just save and scrape again.
+#
+# Add companies below:
+Jobright.ai

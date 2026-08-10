@@ -1,0 +1,16 @@
+# Local runtime state: the 24-hour log of job ids already returned. Machine
+# specific and rewritten on every scrape.
+seen-jobs.json
+seen-jobs.json.tmp
+
+# Machine-local Claude Code permissions (absolute paths, not portable).
+.claude/settings.local.json
+
+# Browser-automation artifacts.
+.playwright-mcp/
+*.png
+
+# This project has no dependencies, but keep the conventional ignores in case
+# one is ever added.
+node_modules/
+npm-debug.log*

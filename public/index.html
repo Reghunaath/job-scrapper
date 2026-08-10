@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Scraper</title>
+<style>
+  :root {
+    --bg: #fbfbfa;
+    --panel: #ffffff;
+    --ink: #1a1a19;
+    --muted: #6b6b66;
+    --line: #e4e4e0;
+    --accent: #1f6f43;
+    --accent-bg: #edf6f0;
+    --warn: #8a5a1a;
+    --radius: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614; --panel: #1e1e1c; --ink: #eceae5; --muted: #9a978f;
+      --line: #32312d; --accent: #6cc08c; --accent-bg: #1b2a21; --warn: #d0a45f;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 24px 80px;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 780px; margin: 0 auto; }
+
+  h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 28px; }
+
+  form {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+    padding: 16px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  input, select, button {
+    font: inherit; color: inherit;
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 7px 9px; background: var(--bg);
+  }
+  input:focus-visible, select:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+  .f-count { width: 92px; }
+  .f-hours { width: 150px; }
+  .f-kw { flex: 1; min-width: 200px; }
+  button {
+    background: var(--ink); color: var(--bg);
+    border-color: var(--ink); padding: 8px 18px;
+    font-weight: 500; cursor: pointer;
+  }
+  button:hover:not(:disabled) { opacity: .88; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+
+  /* Deliberately not flex: these are inline text runs, and flex would discard
+     the whitespace between the labels and their values. */
+  #lastRun { margin: 12px 2px 0; font-size: 12px; color: var(--muted); }
+  #lastRun .sep { margin: 0 7px; opacity: .45; }
+  #lastRun .val { color: var(--ink); }
+
+  #status {
+    margin: 16px 2px; font-size: 13px; color: var(--muted);
+    min-height: 20px; display: flex; align-items: center; gap: 8px;
+  }
+  #status.err { color: #b4442e; }
+  .spinner {
+    width: 11px; height: 11px; flex: none;
+    border: 2px solid var(--line); border-top-color: var(--muted);
+    border-radius: 50%; animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+
+  .job {
+    padding: 14px 16px; margin-bottom: 8px; background: var(--panel);
+    border: 1px solid var(--line); border-left: 3px solid var(--line);
+    border-radius: var(--radius);
+  }
+  .job.match { border-left-color: var(--accent); background: var(--accent-bg); }
+  .job.unknown { border-left-color: var(--warn); }
+  .job.no { opacity: .62; }
+
+  .job h2 { font-size: 15px; font-weight: 600; margin: 0 0 3px; }
+  .job h2 a { color: inherit; text-decoration: none; }
+  .job h2 a:hover { text-decoration: underline; }
+  .meta { font-size: 13px; color: var(--muted); }
+  .meta .dot { margin: 0 6px; opacity: .5; }
+  .reason { font-size: 13px; margin-top: 8px; }
+  .reason b { font-weight: 600; color: var(--accent); }
+  .job.no .reason b { color: var(--muted); }
+  .job.unknown .reason b { color: var(--warn); }
+  .flag { font-size: 12px; color: var(--warn); margin-top: 5px; }
+
+  .section-head {
+    display: flex; align-items: baseline; gap: 10px;
+    margin: 28px 2px 12px; font-size: 12px;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  }
+  .section-head hr { flex: 1; border: 0; border-top: 1px solid var(--line); }
+
+  .toggle {
+    background: none; color: var(--muted); border: 1px solid var(--line);
+    font-size: 12px; padding: 5px 11px; font-weight: 400;
+  }
+  .toggle:hover { color: var(--ink); }
+
+  #issues {
+    margin: 0 0 16px; padding: 11px 14px;
+    border: 1px solid var(--line); border-left: 3px solid var(--warn);
+    border-radius: var(--radius); background: var(--panel);
+  }
+  .issues-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    font-size: 13px; color: var(--warn);
+  }
+  #issuesList {
+    margin: 10px 0 0; padding-left: 18px;
+    font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--muted); max-height: 220px; overflow-y: auto;
+  }
+  #issuesList li { margin-bottom: 3px; overflow-wrap: anywhere; }
+
+  #moreWrap { margin-top: 20px; text-align: center; }
+  .more {
+    background: none; color: var(--ink); border: 1px solid var(--line);
+    padding: 9px 22px; font-size: 13px; font-weight: 500;
+  }
+  .more:hover:not(:disabled) { background: var(--panel); }
+
+  details { margin-top: 36px; border-top: 1px solid var(--line); padding-top: 14px; }
+  summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+  summary:hover { color: var(--ink); }
+  details pre {
+    white-space: pre-wrap; font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 14px; margin: 12px 0 0; overflow-x: auto;
+  }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>LinkedIn job scraper</h1>
+  <p class="sub">Scrapes recent postings, then filters them with Claude against your requirements.</p>
+
+  <form id="form">
+    <div>
+      <label for="count">How many jobs</label>
+      <input class="f-count" id="count" type="number" min="1" max="100" value="25">
+    </div>
+    <div>
+      <label for="hours">Posted within</label>
+      <select class="f-hours" id="hours">
+        <option value="since" disabled>Since last search</option>
+        <option value="1">Last 1 hour</option>
+        <option value="2">Last 2 hours</option>
+        <option value="3">Last 3 hours</option>
+        <option value="6">Last 6 hours</option>
+        <option value="12">Last 12 hours</option>
+        <option value="24" selected>Last 24 hours</option>
+      </select>
+    </div>
+    <div class="f-kw">
+      <label for="keywords">Keywords</label>
+      <input id="keywords" type="text" style="width:100%">
+    </div>
+    <button id="go" type="submit">Scrape</button>
+  </form>
+
+  <p id="lastRun" class="hidden"></p>
+
+  <div id="status"></div>
+
+  <div id="issues" class="hidden">
+    <div class="issues-head">
+      <span id="issuesLabel"></span>
+      <button class="toggle" id="issuesToggle" type="button">Show</button>
+    </div>
+    <ul id="issuesList" class="hidden"></ul>
+  </div>
+
+  <div id="matches"></div>
+
+  <div id="restWrap" class="hidden">
+    <div class="section-head">
+      <span id="restLabel"></span><hr>
+      <button class="toggle" id="restToggle" type="button">Show</button>
+    </div>
+    <div id="rest" class="hidden"></div>
+  </div>
+
+  <div id="moreWrap" class="hidden">
+    <button id="loadMore" class="more" type="button">Load more</button>
+  </div>
+
+  <details>
+    <summary>Filtering requirements (read-only)</summary>
+    <pre id="prompt">Loading…</pre>
+    <p class="hint">
+      Edit <code id="promptPath"></code> and scrape again — it is re-read on every run.
+      Filtering with <code id="model"></code>.
+    </p>
+  </details>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+let source = null;
+
+function setStatus(text, { busy = false, error = false } = {}) {
+  $('status').className = error ? 'err' : '';
+  $('status').innerHTML = (busy ? '<span class="spinner"></span>' : '') + esc(text);
+}
+
+/** When the last search ran, and the recency window it used. */
+let lastRun = null; // { ranAt, windowText }
+
+/** Clock time, with the date prepended once the run is no longer from today. */
+function fmtClock(ms) {
+  const d = new Date(ms);
+  const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const sameDay = d.toDateString() === new Date().toDateString();
+  return sameDay ? time : `${d.toLocaleDateString([], { month: 'short', day: 'numeric' })}, ${time}`;
+}
+
+function fmtAgo(ms) {
+  const secs = Math.max(0, Math.round((Date.now() - ms) / 1000));
+  if (secs < 60) return 'just now';
+  const mins = Math.round(secs / 60);
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  const rem = mins % 60;
+  return rem ? `${hrs}h ${rem}m ago` : `${hrs}h ago`;
+}
+
+function renderLastRun() {
+  if (!lastRun || !lastRun.ranAt) {
+    $('lastRun').classList.add('hidden');
+    return;
+  }
+  $('lastRun').classList.remove('hidden');
+  $('lastRun').innerHTML =
+    `Last search <span class="val">${esc(fmtClock(lastRun.ranAt))}</span>` +
+    `<span class="sep">·</span>${esc(fmtAgo(lastRun.ranAt))}` +
+    (lastRun.windowText
+      ? `<span class="sep">·</span>posted within <span class="val">${esc(lastRun.windowText)}</span>`
+      : '');
+
+  // "Since last search" only means something once there is a search to measure
+  // from, so it stays disabled until then.
+  const opt = $('hours').querySelector('option[value="since"]');
+  if (opt) opt.disabled = false;
+}
+
+// Keep "4 min ago" honest without needing a page reload.
+setInterval(renderLastRun, 30000);
+
+let issues = [];
+
+function renderIssues() {
+  if (issues.length === 0) {
+    $('issues').classList.add('hidden');
+    return;
+  }
+  $('issues').classList.remove('hidden');
+  $('issuesLabel').textContent =
+    `${issues.length} request issue${issues.length === 1 ? '' : 's'} during this run`;
+  $('issuesList').innerHTML = issues.map((m) => `<li>${esc(m)}</li>`).join('');
+}
+
+function addIssue(message) {
+  // Identical messages repeat often (same host timing out); collapse them.
+  const last = issues[issues.length - 1];
+  if (last === message) return;
+  issues.push(message);
+  renderIssues();
+}
+
+$('issuesToggle').addEventListener('click', () => {
+  const hidden = $('issuesList').classList.toggle('hidden');
+  $('issuesToggle').textContent = hidden ? 'Show' : 'Hide';
+});
+
+function jobHtml(job) {
+  const cls = job.match === true ? 'match' : job.match === null ? 'unknown' : 'no';
+  const verdict = job.match === true ? 'Match' : job.match === null ? 'Not filtered' : 'No match';
+
+  const meta = [job.company, job.location, job.postedText]
+    .filter(Boolean).map(esc).join('<span class="dot">·</span>');
+
+  const reason = job.reason
+    ? `<p class="reason"><b>${verdict}</b> — ${esc(job.reason)}</p>`
+    : `<p class="reason"><b>${verdict}</b></p>`;
+
+  const flag = job.descriptionFetched === false
+    ? `<p class="flag">Description unavailable${job.detailError ? ' — ' + esc(job.detailError) : ''}. Judged on title and company alone.</p>`
+    : '';
+
+  return `<article class="job ${cls}">
+    <h2><a href="${esc(job.url)}" target="_blank" rel="noopener noreferrer">${esc(job.title)}</a></h2>
+    <div class="meta">${meta}</div>
+    ${reason}${flag}
+  </article>`;
+}
+
+function render(jobs) {
+  const matches = jobs.filter((j) => j.match === true);
+  const rest = jobs.filter((j) => j.match !== true);
+
+  $('matches').innerHTML = matches.length
+    ? matches.map(jobHtml).join('')
+    : (jobs.length ? '<p class="sub">No jobs matched. Try a wider time window or loosen prompt.md.</p>' : '');
+
+  if (rest.length) {
+    $('restWrap').classList.remove('hidden');
+    $('restLabel').textContent = `${rest.length} other job${rest.length === 1 ? '' : 's'}`;
+    $('rest').innerHTML = rest.map(jobHtml).join('');
+  } else {
+    $('restWrap').classList.add('hidden');
+    $('rest').innerHTML = '';
+  }
+}
+
+$('restToggle').addEventListener('click', () => {
+  const hidden = $('rest').classList.toggle('hidden');
+  $('restToggle').textContent = hidden ? 'Show' : 'Hide';
+});
+
+function setHasMore(hasMore) {
+  $('moreWrap').classList.toggle('hidden', !hasMore);
+}
+
+/**
+ * Run a scrape. With `append`, the server resumes from where the last search
+ * stopped and adds to the existing results instead of replacing them.
+ */
+function runScrape(append) {
+  if (source) return; // a run is already streaming
+
+  if (!append) {
+    $('matches').innerHTML = '';
+    $('rest').innerHTML = '';
+    $('restWrap').classList.add('hidden');
+    setHasMore(false);
+    issues = [];
+    renderIssues();
+  }
+
+  $('go').disabled = true;
+  $('loadMore').disabled = true;
+  $('loadMore').textContent = append ? 'Loading…' : 'Load more';
+  setStatus(append ? 'Loading more…' : 'Starting…', { busy: true });
+
+  const params = new URLSearchParams({
+    count: $('count').value,
+    hours: $('hours').value,
+    keywords: $('keywords').value,
+  });
+  if (append) params.set('append', '1');
+
+  source = new EventSource('/api/scrape?' + params);
+
+  const finish = () => {
+    if (source) { source.close(); source = null; }
+    $('go').disabled = false;
+    $('loadMore').disabled = false;
+    $('loadMore').textContent = 'Load more';
+  };
+
+  source.addEventListener('progress', (ev) => {
+    setStatus(JSON.parse(ev.data).message, { busy: true });
+  });
+
+  // Non-fatal request problems, streamed as they happen.
+  source.addEventListener('warning', (ev) => {
+    try { addIssue(JSON.parse(ev.data).message); } catch {}
+  });
+
+  source.addEventListener('done', (ev) => {
+    const data = JSON.parse(ev.data);
+    if (data.ranAt) {
+      lastRun = { ranAt: data.ranAt, windowText: data.windowText };
+      renderLastRun();
+    }
+    render(data.jobs || []);
+    setHasMore(Boolean(data.hasMore));
+    (data.warnings || []).forEach(addIssue); // replay, in case any were missed
+    const suffix = issues.length
+      ? ` (${issues.length} request issue${issues.length === 1 ? '' : 's'} — see above)`
+      : '';
+    setStatus((data.message || 'Done.') + suffix);
+    finish();
+  });
+
+  source.addEventListener('error', (ev) => {
+    // A transport-level failure carries no payload; a server-sent error does.
+    let msg = 'Connection to the server was lost.';
+    try {
+      if (ev.data) {
+        const data = JSON.parse(ev.data);
+        msg = data.message;
+        (data.warnings || []).forEach(addIssue);
+      }
+    } catch {}
+    setStatus(msg, { error: true });
+    finish();
+  });
+}
+
+$('form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  runScrape(false);
+});
+
+$('loadMore').addEventListener('click', () => runScrape(true));
+
+// Initial load: config, current prompt, and any results already in memory.
+fetch('/api/config').then((r) => r.json()).then((c) => {
+  // Don't clobber a restored query if /api/jobs already filled this in.
+  if (!$('keywords').value) $('keywords').value = c.defaultKeywords;
+  $('count').max = c.maxJobs;
+  $('model').textContent = c.model;
+}).catch(() => {});
+
+fetch('/api/prompt').then((r) => r.json()).then((d) => {
+  $('prompt').textContent = d.prompt || '(prompt.md is empty)';
+  $('promptPath').textContent = d.path;
+}).catch(() => { $('prompt').textContent = 'Could not read prompt.md'; });
+
+fetch('/api/jobs').then((r) => r.json()).then((d) => {
+  if (d.jobs && d.jobs.length) {
+    render(d.jobs);
+    setHasMore(Boolean(d.hasMore));
+    setStatus(`Showing ${d.jobs.length} jobs from the last scrape.`);
+    // Restore the query that produced them, so "Load more" continues it.
+    if (d.query) {
+      $('keywords').value = d.query.keywords;
+      lastRun = { ranAt: d.query.ranAt, windowText: d.query.windowText };
+      renderLastRun(); // also re-enables the "since last search" option
+      if (d.query.hoursParam) $('hours').value = d.query.hoursParam;
+    }
+  }
+}).catch(() => {});
+</script>
+</body>
+</html>
