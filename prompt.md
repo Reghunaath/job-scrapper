@@ -8,54 +8,64 @@ avoid. Everything below this line is sent to Claude as the system prompt.
 
 ---
 
-I have about 3 years of professional software engineering experience and I am
-looking for my next role in the United States.
+I am a Master of Science in Data Science student at Northeastern University,
+graduating December 2026, looking for an early-career role in the United States.
+My target is machine learning, deep learning, AI, or software engineering. I
+have internship experience (ML engineering, voice/LLM agents, computer vision,
+MLOps) but I am effectively a new grad, and I will need visa sponsorship.
 
 Match a job only if EVERY bullet below holds. Judge only from what the posting
 actually says — never infer a restriction from silence.
 
 - **Experience** — Match when the lowest number of years the posting asks for is
-  2 or fewer: no experience required, experience never mentioned, "0-3 years",
-  "1-3 years", "2-4 years", "2 to 5 years", "up to 4 years", "1+ years", "2+
-  years", "at least 2 years", or a range entirely below 3 such as "0-2 years"
-  (being overqualified is fine, for the same reason a no-experience role is
-  fine). Reject when the lowest number is 3 or more, however it is phrased:
-  "3-5 years", "3-6 years", "3+ years", "minimum 3 years", "at least 3 years",
-  a bare "3 years of experience", or anything higher like "4-6 years" and "5+
-  years". Reject those even though 3 years technically satisfies the number — a
-  floor of 3 competes me against people with five or eight years, whereas a
-  floor of 2 or below is aimed squarely at my level.
+  2 or fewer: no experience required, experience never mentioned, "new grad",
+  "0-2 years", "0-3 years", "1-3 years", "1+ years", "2+ years", "at least 2
+  years", or a range whose floor is 2 or below. Internship experience counts,
+  so postings that ask for "internship experience" or "some project experience"
+  are a match. Reject when the lowest number is 3 or more, however it is
+  phrased: "3-5 years", "3+ years", "minimum 3 years", a bare "3 years of
+  experience", or anything higher like "4-6 years" and "5+ years". A floor of 3
+  or more competes me against people with several years of full-time work; a
+  floor of 2 or below (or none) is aimed at my level.
 
-- **Seniority** — Match mid-level and below: a plain "Software Engineer",
-  "Software Engineer I" or "II", "Associate", "Junior", "New Grad", "Entry
-  Level". Reject any title containing Senior, Sr., Staff, Principal, Lead,
-  Manager, Director or Architect, and reject a posting whose responsibilities
-  imply seniority even when the title does not — owning an entire platform,
-  setting technical direction for an organisation, or managing engineers. Where
-  a posting gives both a title and a number of years, trust the number:
-  "Software Engineer II, 2-4 years" is a match, "Software Engineer, 6+ years" is
-  not.
+- **Seniority** — Match new-grad and entry-level roles: "New Grad", "University
+  Grad", "Entry Level", "Junior", "Associate", "Early Career", a plain
+  "Software Engineer", "Machine Learning Engineer", "Data Scientist", or those
+  same titles with "I" or "II". Also match paid internships and co-ops, since I
+  am still a student. Reject any title containing Senior, Sr., Staff, Principal,
+  Lead, Manager, Director or Architect, and reject a posting whose
+  responsibilities imply seniority even when the title does not — owning an
+  entire platform, setting technical direction for an organisation, or managing
+  engineers. Where a posting gives both a title and a number of years, trust the
+  number: "Machine Learning Engineer II, 1-3 years" is a match, "Software
+  Engineer, 6+ years" is not.
 
-- **Kind of work** — Match roles whose main work is building software:
-  development, software engineering, backend, frontend, full stack, mobile,
-  embedded, platform or infrastructure engineering. Reject roles whose main work
-  is something else even when they sit inside an engineering organisation or
-  carry a software-sounding title: QA or test-only positions, IT support and
-  help desk, data entry, business or systems analysis, technical sales, and
-  recruiting.
+- **Kind of work** — Match roles whose main work is machine learning, deep
+  learning, AI, data science, or software engineering: ML engineering, MLOps,
+  applied scientist / applied ML, research engineering, computer vision, NLP or
+  LLM work, generative AI, recommendation systems, data science and modeling,
+  and general software engineering (backend, frontend, full stack, platform, or
+  infrastructure). Reject roles whose main work is something else even when they
+  sit inside an engineering or data organisation or carry an ML/software-sounding
+  title: pure data analytics or BI-reporting-only positions, data-entry, QA or
+  test-only roles, IT support and help desk, business or systems analysis,
+  technical sales, and recruiting. Data analyst roles that are only dashboards
+  and reporting, with no modeling or engineering, are a reject.
 
 - **Location** — Match roles based in the United States, including fully remote
   and hybrid. Reject roles based in another country, and reject remote roles
   restricted to a region I am not in, such as "remote within Canada" or "remote,
   EMEA only". A US city with no remote option is still a match.
 
-- **Visa sponsorship** — Match when the posting says nothing about sponsorship,
+- **Visa sponsorship** — I will need sponsorship (F-1 / OPT now, H-1B later), so
+  this bullet is strict. Match when the posting says nothing about sponsorship,
   or asks only for general work authorization such as "must be legally
-  authorized to work in the United States". Reject when it rules sponsorship
-  out: "we are unable to sponsor or take over sponsorship of an employment
-  visa", "no visa sponsorship available", "H-1B sponsorship is not offered",
-  "candidates must be authorized to work in the US without sponsorship, now or
-  in the future", or "the right to work without needing visa sponsorship".
+  authorized to work in the United States", or explicitly offers sponsorship.
+  Reject when it rules sponsorship out in any form: "we are unable to sponsor or
+  take over sponsorship of an employment visa", "no visa sponsorship available",
+  "H-1B sponsorship is not offered", "candidates must be authorized to work in
+  the US without sponsorship, now or in the future", "the right to work without
+  needing visa sponsorship", or "OPT/CPT candidates will not be considered".
 
 - **Citizenship** — Match when citizenship is not mentioned, and match when it
   appears only in equal-opportunity boilerplate — the clause listing citizenship
@@ -63,15 +73,15 @@ actually says — never infer a restriction from silence.
   is a promise not to discriminate, so it is never a reason to reject. Reject
   when the role is genuinely restricted by status: "must be a US citizen", "US
   Persons only", "green card holders or citizens only", or an ITAR or export
-  control clause limiting the role to citizens and permanent residents.
+  control clause limiting the role to citizens and permanent residents — I am
+  not a citizen or permanent resident.
 
-- **Security clearance** — Match when no clearance is mentioned, or when the
-  posting merely says a clearance is a nice-to-have or can be obtained after
-  hire. Reject when an active or existing clearance is required, including
-  "active Secret", "Top Secret/SCI", "must be clearable" and "ability to obtain
-  a clearance" where that is stated as a condition of employment.
+- **Security clearance** — I cannot hold a clearance. Match when no clearance is
+  mentioned. Reject when an active, existing, or obtainable clearance is
+  required or is a condition of employment, including "active Secret", "Top
+  Secret/SCI", "must be clearable", and "ability to obtain a clearance".
 
-- **Pay** — Match salaried and hourly paid positions, whether or not a range is
-  published. Reject unpaid internships, volunteer positions, equity-only or
-  commission-only roles, and anything where the employment type is listed as
-  Volunteer.
+- **Pay** — Match salaried and hourly paid positions, including paid internships
+  and co-ops, whether or not a range is published. Reject unpaid internships,
+  volunteer positions, equity-only or commission-only roles, and anything where
+  the employment type is listed as Volunteer.
