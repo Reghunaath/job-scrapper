@@ -27,3 +27,6 @@ Jobright.ai
 TalentHop
 ScoutBetter
 TaskVerse
+Hire Feed
+HireFeed
+Haystack

@@ -3,6 +3,10 @@
 seen-jobs.json
 seen-jobs.json.tmp
 
+# The resume each job is scored against. Personal to whoever runs the scraper,
+# so it stays local — the server treats a missing resume.md as "no scoring data".
+resume.md
+
 # Machine-local Claude Code permissions (absolute paths, not portable).
 .claude/settings.local.json
 

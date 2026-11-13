@@ -101,6 +101,28 @@
   .job.unknown .reason b { color: var(--warn); }
   .flag { font-size: 12px; color: var(--warn); margin-top: 5px; }
 
+  /* Title row: heading takes the slack, score badge stays pinned right. */
+  .job .head { display: flex; align-items: baseline; gap: 10px; }
+  .job .head h2 { flex: 1; min-width: 0; }
+  .score {
+    flex: none; font-size: 13px; font-weight: 600; padding: 2px 8px;
+    border-radius: 999px; border: 1px solid currentColor; white-space: nowrap;
+  }
+  .score .label { opacity: .55; font-weight: 500; }
+  .score.high { color: var(--accent); }
+  .score.mid { color: var(--warn); }
+  .score.low { color: var(--muted); }
+
+  .kw { font-size: 12px; margin-top: 7px; display: flex;
+        flex-wrap: wrap; align-items: baseline; gap: 5px; }
+  .kw .label { color: var(--muted); margin-right: 2px; }
+  .kw span.chip {
+    padding: 1px 7px; border-radius: 4px; border: 1px solid var(--line);
+    background: var(--panel);
+  }
+  .kw.missing .chip { color: var(--warn); border-color: currentColor; }
+  .kw.have .chip { color: var(--accent); border-color: currentColor; }
+
   .section-head {
     display: flex; align-items: baseline; gap: 10px;
     margin: 28px 2px 12px; font-size: 12px;
@@ -311,15 +333,39 @@ function jobHtml(job) {
     ? `<p class="flag">Description unavailable${job.detailError ? ' — ' + esc(job.detailError) : ''}. Judged on title and company alone.</p>`
     : '';
 
+  // Resume-fit score, shown only when the filter actually returned one.
+  const score = typeof job.score === 'number'
+    ? `<span class="score ${job.score >= 75 ? 'high' : job.score >= 50 ? 'mid' : 'low'}"
+             title="How well your resume matches this posting">${job.score}<span class="label">/100</span></span>`
+    : '';
+
+  const chips = (list, cls, label) =>
+    Array.isArray(list) && list.length
+      ? `<div class="kw ${cls}"><span class="label">${label}</span>` +
+        list.map((k) => `<span class="chip">${esc(k)}</span>`).join('') +
+        '</div>'
+      : '';
+
   return `<article class="job ${cls}">
-    <h2><a href="${esc(job.url)}" target="_blank" rel="noopener noreferrer">${esc(job.title)}</a></h2>
+    <div class="head">
+      <h2><a href="${esc(job.url)}" target="_blank" rel="noopener noreferrer">${esc(job.title)}</a></h2>
+      ${score}
+    </div>
     <div class="meta">${meta}</div>
-    ${reason}${flag}
+    ${reason}
+    ${chips(job.have, 'have', 'You have')}
+    ${chips(job.missing, 'missing', 'Missing')}
+    ${flag}
   </article>`;
 }
 
 function render(jobs) {
-  const matches = jobs.filter((j) => j.match === true);
+  // Best resume fit first; unscored jobs sink rather than jumping the queue.
+  const byScore = (a, b) =>
+    (typeof b.score === 'number' ? b.score : -1) -
+    (typeof a.score === 'number' ? a.score : -1);
+
+  const matches = jobs.filter((j) => j.match === true).sort(byScore);
   const rest = jobs.filter((j) => j.match !== true);
 
   $('matches').innerHTML = matches.length

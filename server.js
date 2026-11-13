@@ -20,6 +20,7 @@ const { loadSeen, recordSeen, SEEN_FILE } = require('./lib/seen');
 
 const PORT = Number(process.env.PORT) || 5173;
 const PROMPT_FILE = path.join(__dirname, 'prompt.md');
+const RESUME_FILE = path.join(__dirname, 'resume.md');
 const INDEX_FILE = path.join(__dirname, 'public', 'index.html');
 
 const MAX_JOBS = 100;
@@ -53,6 +54,15 @@ function readPrompt() {
   try {
     return fs.readFileSync(PROMPT_FILE, 'utf8');
   } catch {
+    return '';
+  }
+}
+
+function readResume() {
+  try {
+    return fs.readFileSync(RESUME_FILE, 'utf8');
+  } catch {
+    // No resume on disk is not an error — scoring simply has nothing to go on.
     return '';
   }
 }
@@ -326,7 +336,14 @@ async function handleScrape(req, res, url) {
         job.reason = 'prompt.md is empty — nothing to filter against';
       }
     } else {
-      await filterJobs(jobs, prompt, {
+      // The resume rides along with the requirements so the model can score fit
+      // and name gaps in the same pass — one CLI call, not two.
+      const resume = promptForModel(readResume());
+      const systemText = resume
+        ? `# My resume\n\n${resume}\n\n# Filtering requirements\n\n${prompt}`
+        : prompt;
+
+      await filterJobs(jobs, systemText, {
         onProgress: (p) => send('progress', p),
         onWarning,
       });
