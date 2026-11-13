@@ -24,3 +24,6 @@
 #
 # Add companies below:
 Jobright.ai
+TalentHop
+ScoutBetter
+TaskVerse
